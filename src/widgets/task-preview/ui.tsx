@@ -1,21 +1,36 @@
-import { editTaskModalStore, editTaskStore, TaskInfo, taskStore } from '@/entities/task';
+import {
+  editTaskModalStore,
+  editTaskStore,
+  TaskInfo,
+  taskStore,
+} from '@/entities/task';
 import { Button } from '@/shared/ui';
 import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
 import { MdModeEdit } from 'react-icons/md';
-import { Navigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 export const TaskPreview = observer(() => {
+  const { id: taskId } = useParams();
+
+  useEffect(() => {
+    if (taskId) {
+      taskStore.selectTask(taskId);
+    }
+  }, []);
+
   const { selectedTask } = taskStore;
 
   if (!selectedTask) {
-    return <Navigate to="/tasks" />;
+    return (
+      <div className='flex flex-col h-full justify-center items-center gap-2 my-5'>
+        <p className='text-accent text-3xl'>404</p>
+        <h3 className="text-2xl text-foreground/60">Задача не выбрана</h3>
+      </div>
+    );
   }
 
   const { id, title, description } = selectedTask;
-
-  if (!id || !title) {
-    return <Navigate to="/tasks" />;
-  }
 
   const handleEditTask = () => {
     editTaskStore.setForm({ id, title, description });
