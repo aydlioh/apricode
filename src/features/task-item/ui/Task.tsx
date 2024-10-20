@@ -13,21 +13,8 @@ import { TaskTools } from './TaskTools';
 import { observer } from 'mobx-react-lite';
 import clsx from 'clsx';
 
-type TaskProps = ITask & {
-  onOpen: () => void;
-  isOpen: boolean;
-};
-
 export const Task = observer(
-  ({
-    id,
-    title,
-    description,
-    isCompleted,
-    subtasks,
-    onOpen,
-    isOpen,
-  }: TaskProps) => {
+  ({ id, title, description, isCompleted, isOpened, subtasks }: ITask) => {
     const taskRef = useRef<HTMLDivElement | null>(null);
     const [isToolsVisible, setIsToolsVisible] = useState<boolean>(false);
     const hasSubtasks = subtasks.length > 0;
@@ -36,8 +23,12 @@ export const Task = observer(
     const handleTaskClick = () => {
       navigate(`/tasks/${id}`);
       taskStore.selectTask(id);
-      setIsToolsVisible(!isOpen);
-      onOpen();
+      if (isOpened && isToolsVisible) {
+        taskStore.toggleOpen(id);
+      } else if (!isOpened) {
+        taskStore.toggleOpen(id);
+      }
+      setIsToolsVisible(prev => !prev);
     };
 
     const handleCreateSubtask = () => {
@@ -54,8 +45,8 @@ export const Task = observer(
     };
 
     const handleCheckboxChange = () => {
-      if (!isOpen && hasSubtasks) {
-        onOpen();
+      if (!isOpened && hasSubtasks) {
+        taskStore.toggleOpen(id);
       }
       taskStore.toggleComplete(id);
     };
@@ -96,7 +87,7 @@ export const Task = observer(
         )}
       >
         <div className="flex gap-2 items-center w-full">
-          <ArrowIcon isOpen={isOpen} />
+          <ArrowIcon isOpen={isOpened} />
           <Checkbox checked={isCompleted} onChange={handleCheckboxChange} />
           <TaskTitle title={title} />
         </div>

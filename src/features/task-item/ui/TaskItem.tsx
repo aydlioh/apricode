@@ -1,15 +1,10 @@
 import { ITask, taskStore } from '@/entities/task';
 import { Task } from './Task';
-import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import clsx from 'clsx';
 
 export const TaskItem = observer((props: ITask) => {
-  const [areSubtasksOpen, setAreSubtasksOpen] = useState<boolean>(false);
-
-  const toggleSubtaskOpen = () => {
-    setAreSubtasksOpen((prev) => !prev);
-  };
+  const { selectedTask, isParentTask } = taskStore;
 
   const handleCreateSubtask = () => {
     taskStore.addDefaultTask(props.id);
@@ -21,7 +16,8 @@ export const TaskItem = observer((props: ITask) => {
         <ul
           className={clsx(
             'ml-[19px] mt-1 border-l-[2px] flex flex-col gap-1',
-            taskStore.selectedTask?.id === props.id
+            selectedTask?.id === props.id ||
+              isParentTask(selectedTask?.id || props.id, props.id)
               ? 'border-l-accent'
               : 'border-l-foreground/20'
           )}
@@ -47,8 +43,8 @@ export const TaskItem = observer((props: ITask) => {
 
   return (
     <li className="min-w-[250px]">
-      <Task {...props} isOpen={areSubtasksOpen} onOpen={toggleSubtaskOpen} />
-      {areSubtasksOpen && renderSubtasks()}
+      <Task {...props} />
+      {props.isOpened && renderSubtasks()}
     </li>
   );
 });

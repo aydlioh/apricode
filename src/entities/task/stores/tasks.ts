@@ -46,8 +46,39 @@ class TaskStore {
     }
   };
 
+  toggleOpen = (id: string) => {
+    const task = this.findTaskById(id);
+    if (task) {
+      task.isOpened = !task.isOpened;
+    }
+  };
+
   selectTask = (id: string) => {
     this._selectedTask = this.findTaskById(id) || null;
+  };
+
+  isParentTask = (
+    parentId: string,
+    childId: string,
+  ): boolean => {
+    const parentTask = this.findTaskById(parentId);
+    if (!parentTask) {
+      return false;
+    }
+
+    const findTask = (tasks: ITask[]): boolean => {
+      for (const task of tasks) {
+        if (task.id === childId) {
+          return true;
+        }
+        if (findTask(task.subtasks)) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    return findTask(parentTask.subtasks);
   };
 
   private setTasksComplete = (tasks: ITask[], isCompleted: boolean) => {
@@ -74,6 +105,7 @@ class TaskStore {
       description: task.description,
       subtasks: [],
       isCompleted: false,
+      isOpened: true,
     };
     this._tasks.push(newTask);
   };
@@ -87,26 +119,30 @@ class TaskStore {
         description: task.description,
         subtasks: [],
         isCompleted: false,
+        isOpened: false,
       };
       parentTask.subtasks.push(newTask);
       this.updateParentTaskComplete(newTask);
     }
   };
 
-  private deleteTaskById = (id: string, tasks: ITask[] = this._tasks): boolean => {
-    const taskIndex = tasks.findIndex(task => task.id === id);
+  private deleteTaskById = (
+    id: string,
+    tasks: ITask[] = this._tasks
+  ): boolean => {
+    const taskIndex = tasks.findIndex((task) => task.id === id);
     if (taskIndex !== -1) {
       tasks.splice(taskIndex, 1);
       return true;
     }
-  
+
     for (const task of tasks) {
       const wasDeleted = this.deleteTaskById(id, task.subtasks);
       if (wasDeleted) {
         return true;
       }
     }
-  
+
     return false;
   };
 
