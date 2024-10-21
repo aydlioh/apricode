@@ -21,7 +21,7 @@ export const ThemeSwitcher = observer(() => {
         {theme === 'light' ? <FaSun /> : <FaMoon />}
       </button>
       {isOpened && (
-        <div className="absolute right-0 top-full text-[14px] w-[200px] border-2 border-foreground/30 bg-secondary  shadow-md rounded-md">
+        <div className="absolute right-0 z-50 top-full text-[14px] w-[200px] border-2 border-foreground/30 bg-secondary  shadow-md rounded-md">
           <p className="mx-2 pt-2 mb-1 pb-2 text-foreground/80 border-b-2 border-foreground/30">
             Выберите тему
           </p>

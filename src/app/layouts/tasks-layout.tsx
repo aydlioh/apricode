@@ -6,7 +6,7 @@ export const TasksLayout = () => {
   return (
     <>
       <Header />
-      <main className="flex h-[calc(100svh-100px)] px-2 flex-row container">
+      <main className="flex min-h-[calc(100svh-100px)] px-2 md:flex-row flex-col container md:py-0 py-2">
         <TasksPage />
         <Outlet />
       </main>

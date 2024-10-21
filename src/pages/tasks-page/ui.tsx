@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 
 export const TasksPage = () => {
   return (
-    <section className="w-1/2 py-4 px-8 overflow-x-auto">
+    <section className="md:w-1/2 w-full py-4 lg:px-8 px-1">
       <TaskTree />
       {createPortal(<EditTaskModal />, document.body)}
     </section>

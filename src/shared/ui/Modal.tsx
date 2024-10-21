@@ -48,7 +48,7 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -200 }}
             transition={{ duration: 0.4, ease: 'easeInOut' }}
-            className="min-w-[450px] p-8 relative rounded-md min-h-[200px] bg-secondary text-foreground"
+            className="md:min-w-[450px] min-w-[300px] py-8 md:px-8 px-4 relative rounded-md min-h-[200px] bg-secondary text-foreground"
           >
             {children}
             <button
