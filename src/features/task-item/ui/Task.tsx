@@ -6,7 +6,6 @@ import {
   TaskTitle,
 } from '@/entities/task';
 import { Checkbox } from '@/shared/ui';
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { IoIosArrowForward } from 'react-icons/io';
 import { useNavigate } from 'react-router-dom';
 import { TaskTools } from './TaskTools';
@@ -15,25 +14,26 @@ import clsx from 'clsx';
 
 export const Task = observer(
   ({ id, title, description, isCompleted, isOpened, subtasks }: ITask) => {
-    const taskRef = useRef<HTMLDivElement | null>(null);
-    const [isToolsVisible, setIsToolsVisible] = useState<boolean>(false);
-    const hasSubtasks = subtasks.length > 0;
     const navigate = useNavigate();
+    const hasSubtasks = subtasks.length > 0;
+    const isSelected = taskStore.selectedTask?.id === id;
 
     const handleTaskClick = () => {
       navigate(`/tasks/${id}`);
       taskStore.selectTask(id);
-      if (isOpened && isToolsVisible) {
+      if (isOpened && isSelected) {
         taskStore.toggleOpen(id);
       } else if (!isOpened) {
         taskStore.toggleOpen(id);
       }
-      setIsToolsVisible(prev => !prev);
     };
 
     const handleCreateSubtask = () => {
       taskStore.addDefaultTask(id);
       taskStore.search('');
+      if (!isOpened) {
+        taskStore.toggleOpen(id);
+      }
     };
 
     const handleEditTask = () => {
@@ -53,37 +53,12 @@ export const Task = observer(
       taskStore.toggleComplete(id);
     };
 
-    const handleClickOutside = useCallback(
-      (event: MouseEvent) => {
-        if (
-          taskRef.current &&
-          !taskRef.current.contains(event.target as Node)
-        ) {
-          setIsToolsVisible(false);
-        }
-      },
-      [setIsToolsVisible]
-    );
-
-    useEffect(() => {
-      if (isToolsVisible) {
-        document.addEventListener('click', handleClickOutside);
-      }
-
-      return () => {
-        if (isToolsVisible) {
-          document.removeEventListener('click', handleClickOutside);
-        }
-      };
-    }, [isToolsVisible, handleClickOutside]);
-
     return (
       <div
-        ref={taskRef}
         onClick={handleTaskClick}
         className={clsx(
           'ml-1 duration-150 cursor-pointer rounded-[3px] flex flex-row items-center justify-between pl-2 pr-3 py-1',
-          taskStore.selectedTask?.id === id
+          isSelected
             ? 'bg-foreground/15 hover:bg-foreground/15'
             : 'hover:bg-foreground/5'
         )}
@@ -94,7 +69,7 @@ export const Task = observer(
           <TaskTitle title={title} />
         </div>
         <div>
-          {isToolsVisible && (
+          {isSelected && (
             <TaskTools
               onEdit={handleEditTask}
               onDelete={handleDeleteTask}

@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect } from 'react';
 import { CgClose } from 'react-icons/cg';
+import { useClickOutside } from '../hooks';
 
 type ModalProps = {
   children?: React.ReactNode;
@@ -9,6 +10,8 @@ type ModalProps = {
 };
 
 export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
+  const modalRef = useClickOutside(onClose);
+
   useEffect(() => {
     const handleEscKeydown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -36,14 +39,13 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          onClick={handleClose}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 flex justify-center items-center bg-black/40 backdrop-blur-sm"
         >
           <motion.div
-            onClick={(e) => e.stopPropagation()}
+            ref={modalRef}
             initial={{ opacity: 0, y: -200 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -200 }}
