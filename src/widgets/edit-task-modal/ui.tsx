@@ -1,6 +1,7 @@
 import { editTaskModalStore, editTaskStore } from '@/entities/task';
 import { Button, Input, Modal, Textarea } from '@/shared/ui';
 import { observer } from 'mobx-react-lite';
+import { useRef, useEffect } from 'react';
 
 export const EditTaskModal = observer(() => {
   const { isOpened, close } = editTaskModalStore;
@@ -12,6 +13,14 @@ export const EditTaskModal = observer(() => {
     handleDescriptionChange,
     handleSubmit,
   } = editTaskStore;
+
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpened && titleInputRef.current) {
+      titleInputRef.current.focus();
+    }
+  }, [isOpened]);
 
   const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,6 +36,7 @@ export const EditTaskModal = observer(() => {
       >
         <div className="flex flex-col gap-2">
           <Input
+            ref={titleInputRef}
             onChange={(e) => handleTitleChange(e.target.value)}
             value={title}
             placeholder="Введите заголовок"
@@ -55,3 +65,5 @@ export const EditTaskModal = observer(() => {
     </Modal>
   );
 });
+
+
