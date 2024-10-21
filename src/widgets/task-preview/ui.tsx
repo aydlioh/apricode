@@ -25,7 +25,7 @@ export const TaskPreview = observer(() => {
     return (
       <div className='flex flex-col h-full justify-center items-center gap-2 my-5'>
         <p className='text-accent text-3xl'>404</p>
-        <h3 className="text-2xl text-foreground/60">Задача не выбрана</h3>
+        <h3 className="text-2xl text-foreground/60">Задача не найдена!</h3>
       </div>
     );
   }

@@ -33,6 +33,7 @@ export const Task = observer(
 
     const handleCreateSubtask = () => {
       taskStore.addDefaultTask(id);
+      taskStore.search('');
     };
 
     const handleEditTask = () => {
@@ -42,6 +43,7 @@ export const Task = observer(
 
     const handleDeleteTask = () => {
       taskStore.delete(id);
+      taskStore.selectTask('');
     };
 
     const handleCheckboxChange = () => {

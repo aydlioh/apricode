@@ -8,6 +8,6 @@ export interface ITask {
 }
 
 export interface ITaskInput {
-  title: string;
+  title?: string;
   description?: string;
 }

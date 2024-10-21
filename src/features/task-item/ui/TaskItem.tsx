@@ -8,6 +8,7 @@ export const TaskItem = observer((props: ITask) => {
 
   const handleCreateSubtask = () => {
     taskStore.addDefaultTask(props.id);
+    taskStore.search('');
   };
 
   const renderSubtasks = () => {

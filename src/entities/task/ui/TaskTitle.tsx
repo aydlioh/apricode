@@ -3,5 +3,13 @@ type TaskTitleProps = {
 };
 
 export const TaskTitle = ({ title }: TaskTitleProps) => {
-  return <p>{title}</p>;
+  return (
+    <p>
+      {title ? (
+        title
+      ) : (
+        <span className="text-foreground/50">Пустая задача</span>
+      )}
+    </p>
+  );
 };

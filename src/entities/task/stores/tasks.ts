@@ -4,10 +4,12 @@ import { ITaskInput, ITask } from '../model';
 class TaskStore {
   private _tasks: ITask[] = [];
   private _selectedTask: ITask | null = null;
+  private _searchTitle: string = '';
 
   constructor() {
     makeAutoObservable(this);
     this.loadFromLocalStorage();
+    this.loadQueryParams();
     reaction(
       () => toJS(this._tasks),
       () => this.syncWithLocalStorage()
@@ -15,7 +17,7 @@ class TaskStore {
   }
 
   addDefaultTask = (parendId: string = '') => {
-    this.add({ title: 'Новая задача' }, parendId);
+    this.add({}, parendId);
   };
 
   add = (task: ITaskInput, parendId: string = '') => {
@@ -32,7 +34,7 @@ class TaskStore {
   edit = (id: string, task: ITaskInput) => {
     const taskToEdit = this.findTaskById(id);
     if (taskToEdit) {
-      taskToEdit.title = task.title;
+      taskToEdit.title = task.title ?? '';
       taskToEdit.description = task.description;
     }
   };
@@ -55,12 +57,10 @@ class TaskStore {
 
   selectTask = (id: string) => {
     this._selectedTask = this.findTaskById(id) || null;
+    this.syncWithQueryParams()
   };
 
-  isParentTask = (
-    parentId: string,
-    childId: string,
-  ): boolean => {
+  isParentTask = (parentId: string, childId: string): boolean => {
     const parentTask = this.findTaskById(parentId);
     if (!parentTask) {
       return false;
@@ -79,6 +79,31 @@ class TaskStore {
     };
 
     return findTask(parentTask.subtasks);
+  };
+
+  search = (query: string) => {
+    this._searchTitle = query;
+    this.syncWithQueryParams()
+  };
+
+  private searchByQuery = (tasks: ITask[], query: string): ITask[] => {
+    const result: ITask[] = [];
+
+    for (const task of tasks) {
+      const subtasksResult = this.searchByQuery(task.subtasks, query);
+      if (this.includesQuery(task.title, query) || subtasksResult.length) {
+        result.push({
+          ...task,
+          subtasks: subtasksResult,
+        });
+      }
+    }
+
+    return result;
+  };
+
+  private includesQuery = (text: string, query: string): boolean => {
+    return text.toLowerCase().includes(query.toLowerCase());
   };
 
   private setTasksComplete = (tasks: ITask[], isCompleted: boolean) => {
@@ -101,7 +126,7 @@ class TaskStore {
   private createTask = (task: ITaskInput) => {
     const newTask: ITask = {
       id: crypto.randomUUID(),
-      title: task.title,
+      title: task.title ?? '',
       description: task.description,
       subtasks: [],
       isCompleted: false,
@@ -115,7 +140,7 @@ class TaskStore {
     if (parentTask) {
       const newTask: ITask = {
         id: crypto.randomUUID(),
-        title: task.title,
+        title: task.title ?? '',
         description: task.description,
         subtasks: [],
         isCompleted: false,
@@ -171,7 +196,7 @@ class TaskStore {
   };
 
   private syncWithLocalStorage() {
-    localStorage.setItem('tasks', JSON.stringify(this.tasks));
+    localStorage.setItem('tasks', JSON.stringify(this._tasks));
   }
 
   private loadFromLocalStorage() {
@@ -181,12 +206,35 @@ class TaskStore {
     }
   }
 
+  private syncWithQueryParams() {
+    const params = new URLSearchParams(location.search);
+    if (this._searchTitle) {
+      params.set('search', this._searchTitle);
+    } else {
+      params.delete('search');
+    }
+    window.history.replaceState({}, '', `${location.pathname}?${params}`);
+  }
+
+  private loadQueryParams() {
+    this._searchTitle =
+      new URLSearchParams(location.search).get('search') || '';
+  }
+
   get tasks() {
+    if (this._searchTitle) {
+      return this.searchByQuery(this._tasks, this._searchTitle);
+    }
+
     return this._tasks;
   }
 
   get selectedTask() {
     return this._selectedTask;
+  }
+
+  get searchQuery() {
+    return this._searchTitle;
   }
 }
 
